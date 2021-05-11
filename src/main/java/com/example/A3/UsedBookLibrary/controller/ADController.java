@@ -44,7 +44,7 @@ public class ADController {
     private boolean validateToken(String token) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost(String.format("http://localhost:8877/user/auth"));
-            httpPost.addHeader("x-api-key", token);
+            httpPost.addHeader("token", token);
             CloseableHttpResponse httpResponse = client.execute(httpPost);
             HttpEntity entity = httpResponse.getEntity();
             String isAuthenticated = EntityUtils.toString(entity);
@@ -76,12 +76,11 @@ public class ADController {
             System.out.println("User not authenticated.");
             return null;
         }
-
-
     }
 
     @GetMapping(path = "getAllAD",produces = "application/json")
     public List<AD> getAllAD(@RequestHeader(value = "token") String token){
+        System.out.println("GetAll token: "+token);
         if(validateToken(token))
         {
             ADList.clear();
@@ -115,7 +114,6 @@ public class ADController {
         System.out.println("token----> "+token);
         if(validateToken(token))
         {
-            System.out.println("post comes");
             if(ISBN == null || ISBN.length() == 0 || title == null || title.length() == 0)
                 throw new RepException("Miss some parameters, please try again");
             if(price < 0 || quantity <= 0 )

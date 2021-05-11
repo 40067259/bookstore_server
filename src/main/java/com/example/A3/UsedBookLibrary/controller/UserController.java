@@ -32,7 +32,6 @@ public class UserController implements Serializable {
         return "Created user: " + username+ " successfully";
     }
 
-
     @PostMapping(path = "login", produces = "application/json")
     public Response login(@FormParam("username") String username, @FormParam("password") String password) {
         System.out.println(username +" : "+password);
@@ -44,8 +43,10 @@ public class UserController implements Serializable {
         if (user != null) {
             if (user.getPassword().equals(password)) {
                 user.generateToken();
+                System.out.println("Login token1: "+user.getToken());
                 tokenUsername.put(user.getToken(), username);
                 tokenExpiration.put(user.getToken(), new Date());
+                System.out.println("Login token: "+user.getToken());
                 authResponse = new MyResponse(true, user.getToken());
                 status = Response.Status.OK;
             } else {
@@ -59,10 +60,19 @@ public class UserController implements Serializable {
         return Response.status(status).entity(authResponse).build();
     }
 
-    @PostMapping(path = "logout", produces = "application/json")
-    @Path("logout")
+    @GetMapping(path = "logout")
     @Produces("application/json")
-    public String logout(@FormParam("username") String username) {
+    public String logout(@RequestHeader(value = "token") String token) {
+        String u = null;
+        for (String t: tokenUsername.keySet())
+        {
+            if (t.equalsIgnoreCase(token))
+            {
+                u = tokenUsername.get(t);
+                break;
+            }
+        }
+        final String username = u;
         User user = users.stream().filter(user1 -> user1.getUsername().equals(username))
                 .findFirst()
                 .orElse(null);
@@ -79,9 +89,8 @@ public class UserController implements Serializable {
             return "User does not exist!";
         }
     }
-
     @PostMapping(path = "auth", produces = MediaType.APPLICATION_JSON_VALUE)
-    public static ResponseEntity<String> validateToken(@RequestHeader("x-api-key") String token){
+    public static ResponseEntity<String> validateToken(@RequestHeader("token") String token){
         Map<String, String> body = new HashMap<>();
         if (tokenUsername.containsKey(token)) {
             body.put("success", "true");
