@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("user/")
+@CrossOrigin
 public class UserController implements Serializable {
     private static ArrayList<User> users = new ArrayList<>();
     private static Map<String, String> tokenUsername = new HashMap<String, String>();

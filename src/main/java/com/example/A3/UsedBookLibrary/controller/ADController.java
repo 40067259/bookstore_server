@@ -6,7 +6,6 @@ import com.example.A3.UsedBookLibrary.domain.GoogleResult;
 import com.example.A3.UsedBookLibrary.exception.DuplicatedIdException;
 import com.example.A3.UsedBookLibrary.exception.RepException;
 import com.example.A3.UsedBookLibrary.googleRes.GoogleResponse;
-import com.example.A3.UsedBookLibrary.repo.BookRepo;
 import com.example.A3.UsedBookLibrary.service.UsedBookService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
@@ -17,11 +16,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.rowset.serial.SerialBlob;
-import javax.ws.rs.HeaderParam;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,21 +28,23 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 @RequestMapping("ad/")
+@CrossOrigin
 public class ADController {
     List<AD> ADList = new CopyOnWriteArrayList<>();
     List<GoogleResult> resultList = new CopyOnWriteArrayList<>();
     @Autowired
     UsedBookService usedBookService;
-
+    @Value("${azure.auth_url}")
+    private String auth_url;
 
     private boolean validateToken(String token) {
+        System.out.println(auth_url);
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost httpPost = new HttpPost(String.format("http://localhost:8877/user/auth"));
+            HttpPost httpPost = new HttpPost(String.format(auth_url));
             httpPost.addHeader("token", token);
             CloseableHttpResponse httpResponse = client.execute(httpPost);
             HttpEntity entity = httpResponse.getEntity();
@@ -98,7 +99,6 @@ public class ADController {
     }
 
     @PostMapping(path = "postAD",produces = "application/json")
-    //
     public String postAD(
                          @RequestHeader(value = "token") String token,
                          @RequestParam(value = "ISBN") String ISBN ,

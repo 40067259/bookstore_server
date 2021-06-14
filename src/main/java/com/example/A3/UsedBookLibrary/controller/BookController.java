@@ -10,6 +10,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -18,15 +19,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 @RequestMapping("book/")
+@CrossOrigin
 public class BookController {
 
     List<Book> bookList = new CopyOnWriteArrayList<>();
     @Autowired
     UsedBookService usedBookService;
+    @Value("${azure.auth_url}")
+    private String auth_url;
 
     private boolean validateToken(String token) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost httpPost = new HttpPost(String.format("http://localhost:8877/user/auth"));
+            HttpPost httpPost = new HttpPost(String.format(auth_url));
             httpPost.addHeader("token", token);
             CloseableHttpResponse httpResponse = client.execute(httpPost);
             HttpEntity entity = httpResponse.getEntity();
@@ -42,7 +46,7 @@ public class BookController {
     }
 
     @GetMapping(path = "get/{ISBN}", produces = "application/json")
-    public List<Book> searchByISBN(@RequestHeader("token") String token,  @PathVariable("ISBN") String ISBN){
+    public List<Book> searchByISBN(@RequestHeader("tokens") String token,  @PathVariable("ISBN") String ISBN){
         if(validateToken(token))
         {
             bookList.clear();
@@ -55,6 +59,11 @@ public class BookController {
         else
             System.out.println("User not authenticated!");
             return null;
+
+    }
+
+    public static void main(String[] args) {
+        Object o = new Object();
 
     }
 

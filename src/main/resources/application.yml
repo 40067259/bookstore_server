@@ -1,11 +1,19 @@
 spring:
   datasource:
-    username: root
-    password: 123456
+#    username: root
+    username: fred
+#    password: 123456
+    password: mysqldatabase
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/concordia?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+#    url: jdbc:mysql://localhost:3306/concordia?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+#    ?useSSL=true
+    url: jdbc:mysql://mysqldatabase.cjzjzxp7zixt.us-east-2.rds.amazonaws.com:3306/bookstoredb
   http:
     multipart:
       enabled: true
 server:
-  port: 8877
+# local Port port: 8877
+  port: 80
+
+azure:
+  auth_url: http://restapibookstore-env.eba-5pkie2xx.us-east-2.elasticbeanstalk.com/user/auth
